@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>МАЛЯР — Отделочные работы</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --red: #ff0000;
+    --red-dark: #c40000;
+    --black: #0a0a0a;
+    --card: rgba(20,20,20,0.75);
+    --border: #2a2a2a;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Arial', sans-serif;
+    background: var(--black);
+    color: #fff;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ===== БОМБОВЫЙ ФОН ===== */
+  .bg-fixed {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(255,0,0,0.28), transparent 42%),
+      radial-gradient(circle at 85% 90%, rgba(255,0,0,0.22), transparent 42%),
+      linear-gradient(135deg, #0a0a0a 0%, #1a0000 50%, #0a0a0a 100%);
+  }
+
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+  }
+
+  /* ===== HERO (только текст) ===== */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 6vw;
+    position: relative;
+  }
+
+  .hero-inner { max-width: 1000px; }
+
+  .kicker {
+    display: inline-block;
+    font-size: 13px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--red);
+    font-weight: bold;
+    margin-bottom: 30px;
+    padding: 10px 24px;
+    border: 1px solid var(--red);
+    background: rgba(255,0,0,0.06);
+  }
+
+  .hero h1 {
+    font-size: clamp(70px, 16vw, 200px);
+    font-weight: 900;
+    line-height: 0.82;
+    text-transform: uppercase;
+    letter-spacing: -6px;
+    margin-bottom: 25px;
+    text-shadow: 0 0 60px rgba(255,0,0,0.45);
+  }
+
+  .hero h1 .red { color: var(--red); }
+
+  .hero .sub {
+    font-size: clamp(20px, 3.5vw, 38px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #fff;
+    margin-bottom: 30px;
+  }
+
+  .hero .desc {
+    font-size: clamp(15px, 1.6vw, 19px);
+    color: #b0b0b0;
+    max-width: 620px;
+    margin: 0 auto 45px;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 20px 50px;
+    background: var(--red);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 15px;
+    border: 2px solid var(--red);
+    transition: 0.25s;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+  }
+
+  .btn:hover {
+    background: #fff;
+    color: var(--black);
+    border-color: #fff;
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(255,0,0,0.5);
+  }
+
+  /* Скролл-индикатор */
+  .scroll-hint {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #555;
+    animation: bob 2s ease-in-out infinite;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  /* ===== СЕКЦИИ ===== */
+  section {
+    padding: 110px 6vw;
+    position: relative;
+  }
+
+  .section-inner { max-width: 1300px; margin: 0 auto; }
+
+  .section-title {
+    font-size: clamp(38px, 7vw, 86px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -3px;
+    line-height: 0.95;
+    margin-bottom: 20px;
+  }
+
+  .section-title .red { color: var(--red); }
+
+  .section-sub {
+    color: #999;
+    font-size: 16px;
+    margin-bottom: 60px;
+    max-width: 620px;
+  }
+
+  /* ===== УСЛУГИ ===== */
+  .services {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 22px;
+  }
+
+  .service {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--red);
+    padding: 32px 28px;
+    transition: 0.3s;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(6px);
+  }
+
+  .service::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, rgba(255,0,0,0.18), transparent 65%);
+    opacity: 0;
+    transition: 0.3s;
+  }
+
+  .service:hover {
+    border-color: var(--red);
+    transform: translateY(-6px);
+    box-shadow: 0 18px 45px rgba(255,0,0,0.28);
+  }
+
+  .service:hover::before { opacity: 1; }
+
+  .service .num {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--red);
+    opacity: 0.45;
+    line-height: 1;
+    margin-bottom: 14px;
+    position: relative;
+  }
+
+  .service h3 {
+    font-size: 22px;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    position: relative;
+  }
+
+  .service p {
+    font-size: 14px;
+    color: #a0a0a0;
+    position: relative;
+  }
+
+  /* ===== КАК СЧИТАЕТСЯ СТОИМОСТЬ ===== */
+  .price-box {
+    margin-top: 70px;
+    background: linear-gradient(135deg, rgba(255,0,0,0.12), rgba(20,20,20,0.9));
+    border: 2px solid var(--red);
+    padding: 50px 40px;
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
+  }
+
+  .price-box h3 {
+    font-size: clamp(24px, 3vw, 34px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    margin-bottom: 20px;
+    color: #fff;
+  }
+
+  .price-box h3 .red { color: var(--red); }
+
+  .price-box p {
+    font-size: 16px;
+    color: #ccc;
+    max-width: 800px;
+    margin-bottom: 16px;
+  }
+
+  .price-box .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 35px;
+  }
+
+  .step {
+    border-left: 3px solid var(--red);
+    padding-left: 18px;
+  }
+
+  .step .n {
+    font-size: 13px;
+    color: var(--red);
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .step .t {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .step .d {
+    font-size: 13px;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  /* ===== ГАЛЕРЕЯ ===== */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .gallery img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    display: block;
+    border: 1px solid var(--border);
+    transition: 0.35s;
+    cursor: pointer;
+    filter: grayscale(15%) contrast(105%);
+  }
+
+  .gallery img:hover {
+    border-color: var(--red);
+    filter: grayscale(0%) contrast(110%);
+    transform: scale(1.03);
+    box-shadow: 0 0 35px rgba(255,0,0,0.5);
+    z-index: 2;
+  }
+
+  /* Лайтбокс */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.94);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 30px;
+    cursor: zoom-out;
+  }
+
+  .lightbox.active { display: flex; }
+
+  .lightbox img {
+    max-width: 92%;
+    max-height: 92vh;
+    border: 2px solid var(--red);
+    box-shadow: 0 0 60px rgba(255,0,0,0.6);
+  }
+
+  /* ===== ПОЧЕМУ Я ===== */
+  .why {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 22px;
+  }
+
+  .why-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 38px 28px;
+    position: relative;
+    transition: 0.3s;
+    overflow: hidden;
+  }
+
+  .why-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 45px; height: 45px;
+    border-right: 3px solid var(--red);
+    border-bottom: 3px solid var(--red);
+    transition: 0.3s;
+  }
+
+  .why-card:hover {
+    border-color: var(--red);
+    transform: translateY(-6px);
+  }
+
+  .why-card:hover::after {
+    width: 100%; height: 100%;
+    opacity: 0.08;
+    background: var(--red);
+  }
+
+  .why-card h3 {
+    font-size: 20px;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    color: #fff;
+    position: relative;
+  }
+
+  .why-card h3::before {
+    content: '// ';
+    color: var(--red);
+  }
+
+  .why-card p {
+    font-size: 15px;
+    color: #a0a0a0;
+    position: relative;
+  }
+
+  /* ===== CTA ===== */
+  .cta {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+    padding: 110px 6vw;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 45px), calc(100% - 45px) 100%, 0 100%);
+  }
+
+  .cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(45deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 2px, transparent 2px, transparent 14px);
+    pointer-events: none;
+  }
+
+  .cta h2 {
+    font-size: clamp(44px, 9vw, 100px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -4px;
+    line-height: 0.9;
+    margin-bottom: 25px;
+    color: #fff;
+    text-shadow: 0 5px 0 rgba(0,0,0,0.3);
+    position: relative;
+  }
+
+  .cta p {
+    font-size: 18px;
+    color: rgba(255,255,255,0.95);
+    max-width: 640px;
+    margin: 0 auto 40px;
+    position: relative;
+    font-weight: bold;
+  }
+
+  .cta .phone {
+    display: inline-block;
+    font-size: clamp(26px, 5vw, 46px);
+    font-weight: 900;
+    color: #fff;
+    text-decoration: none;
+    border: 3px solid #fff;
+    padding: 20px 50px;
+    transition: 0.25s;
+    position: relative;
+    background: rgba(0,0,0,0.2);
+    letter-spacing: 2px;
+  }
+
+  .cta .phone:hover {
+    background: var(--black);
+    transform: scale(1.03);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    padding: 45px 6vw;
+    text-align: center;
+    color: #666;
+    font-size: 13px;
+    border-top: 1px solid #1a1a1a;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  footer span { color: var(--red); font-weight: bold; }
+
+  /* ===== АДАПТИВ ===== */
+  @media (max-width: 1000px) {
+    .gallery { grid-template-columns: repeat(3, 1fr); }
+    .gallery img { height: 200px; }
+  }
+
+  @media (max-width: 700px) {
+    .hero h1 { letter-spacing: -3px; }
+    section { padding: 75px 6vw; }
+    .cta { padding: 75px 6vw; }
+    .gallery { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .gallery img { height: 160px; }
+    .price-box { padding: 35px 25px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-fixed"></div>
+<div class="grid-overlay"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <span class="kicker">Отделочные работы • Город и область</span>
+    <h1>МАЛЯР</h1>
+    <div class="sub">Отделка любой сложности</div>
+    <p class="desc">
+      Шпаклёвка, покраска, обои, штукатурка, декоративная штукатурка,
+      укладка ламината, плинтуса, замена розеток. Делаю так, что переделывать не придётся.
+    </p>
+    <a href="#contact" class="btn">Вызвать мастера →</a>
+  </div>
+  <div class="scroll-hint">Листай вниз ↓</div>
+</section>
+
+<!-- УСЛУГИ -->
+<section id="services">
+  <div class="section-inner">
+    <h2 class="section-title">Что я <span class="red">делаю</span></h2>
+    <p class="section-sub">Все виды отделочных работ. Без посредников. Работаю на совесть.</p>
+
+    <div class="services">
+      <div class="service">
+        <div class="num">01</div>
+        <h3>Шпаклёвка</h3>
+        <p>Под обои и под покраску. Идеально ровные стены — без «волн» и перепадов.</p>
+      </div>
+
+      <div class="service">
+        <div class="num">02</div>
+        <h3>Покраска</h3>
+        <p>Стены, потолки, откосы. Аккуратно, без потёков и следов валика.</p>
+      </div>
+
+      <div class="service">
+        <div class="num">03</div>
+        <h3>Оклейка обоев</h3>
+        <p>Обычные, виниловые, флизелиновые. Стык в стык, без пузырей и расхождений.</p>
+      </div>
+
+      <div class="service">
+        <div class="num">04</div>
+        <h3>Жидкие обои</h3>
+        <p>Нанесение жидких обоев — ровно, аккуратно, с соблюдением технологии.</p>
+      </div>
+
+      <div class="service">
+        <div class="num">05</div>
+        <h3>Штукатурка</h3>
+        <p>Стены под финиш. По уровню, без трещин и отслоений.</p>
+      </div>
+
+      <div class="service">
+        <div class="num">06</div>
+        <h3>Декоративная штукатурка</h3>
+        <p>Из штукатурки, из шпаклёвки. Фактуры, панно, авторские решения.</p>
+      </div>
+
+      <div class="service">
+        <div class="num">07</div>
+        <h3>Укладка ламината</h3>
+        <p>Ровно, по уровню, с подложкой. Без скрипов и зазоров.</p>
+      </div>
+
+      <div class="service">
+        <div class="num">08</div>
+        <h3>Плинтуса</h3>
+        <p>Установка напольных и потолочных плинтусов. Ровные углы, чистый стык.</p>
+      </div>
+
+      <div class="service">
+        <div class="num">09</div>
+        <h3>Замена розеток</h3>
+        <p>Розетки, выключатели, подрозетники. Аккуратно, без пыли и мусора.</p>
+      </div>
+
+      <div class="service">
+        <div class="num">10</div>
+        <h3>Малярные работы</h3>
+        <p>Любые малярные работы — от подготовки до финишного слоя.</p>
+      </div>
+
+      <div class="service">
+        <div class="num">11</div>
+        <h3>Отделка под ключ</h3>
+        <p>Комната, квартира, дом. От чернового до финиша — один мастер на объекте.</p>
+      </div>
+
+      <div class="service">
+        <div class="num">12</div>
+        <h3>Мелкие работы</h3>
+        <p>Полки, карнизы, смесители, «муж на час». Приехал — сделал — уехал.</p>
+      </div>
+    </div>
+
+    <!-- КАК СЧИТАЕТСЯ СТОИМОСТЬ -->
+    <div class="price-box">
+      <h3>Цены <span class="red">индивидуально</span></h3>
+      <p>
+        Фиксированного прайса нет — каждый объект считается отдельно.
+        Мастер выезжает, оценивает объём работ, составляет смету и прайс-курант
+        под конкретный объект. Только после этого выставляется итоговая стоимость.
+      </p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="n">ШАГ 01</div>
+          <div class="t">Звонок</div>
+          <div class="d">Обсуждаем задачу по телефону</div>
+        </div>
+        <div class="step">
+          <div class="n">ШАГ 02</div>
+          <div class="t">Выезд — 0₽</div>
+          <div class="d">Мастер приезжает, смотрит объект</div>
+        </div>
+        <div class="step">
+          <div class="n">ШАГ 03</div>
+          <div class="t">Смета — 0₽</div>
+          <div class="d">Составляется прайс под ваш объект</div>
+        </div>
+        <div class="step">
+          <div class="n">ШАГ 04</div>
+          <div class="t">Работа</div>
+          <div class="d">Приступаю — и делаю в срок</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ГАЛЕРЕЯ -->
+<section id="gallery">
+  <div class="section-inner">
+    <h2 class="section-title">Мои <span class="red">работы</span></h2>
+    <p class="section-sub">Реальные объекты. Реальные результаты.</p>
+
+    <div class="gallery">
+      <img src="1.jpg" alt="">
+      <img src="2.jpg" alt="">
+      <img src="3.jpg" alt="">
+      <img src="4.jpg" alt="">
+      <img src="5.jpg" alt="">
+      <img src="6.jpg" alt="">
+      <img src="7.jpg" alt="">
+      <img src="8.jpg" alt="">
+      <img src="9.jpg" alt="">
+      <img src="10.jpg" alt="">
+      <img src="11.jpg" alt="">
+      <img src="12.jpg" alt="">
+    </div>
+  </div>
+</section>
+
+<!-- ПОЧЕМУ Я -->
+<section id="why">
+  <div class="section-inner">
+    <h2 class="section-title">Почему <span class="red">я</span></h2>
+    <p class="section-sub">Без посредников. Без накруток. Без «мастеров с рынка».</p>
+
+    <div class="why">
+      <div class="why-card">
+        <h3>Работаю сам</h3>
+        <p>Никаких «бригад». Делаю лично — отвечаю лично. Приехал, посмотрел, сказал цену — не меняю.</p>
+      </div>
+
+      <div class="why-card">
+        <h3>Сроки — закон</h3>
+        <p>Сказал — сделал. Договорились на 5 дней — значит 5 дней. Не тяну, не пропадаю.</p>
+      </div>
+
+      <div class="why-card">
+        <h3>Честные цены</h3>
+        <p>От эконом до премиум-класса. Смета до начала работ. Сколько сказал — столько и заплатишь.</p>
+      </div>
+
+      <div class="why-card">
+        <h3>Выезд бесплатно</h3>
+        <p>Выезд в черте города и по области — бесплатно. Оценка и консультация — тоже бесплатно.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="contact">
+  <h2>Звони маляру</h2>
+  <p>Выезд на объект — бесплатно. Оценка — бесплатно. Составление сметы — бесплатно.</p>
+  <a href="tel:+79527941326" class="phone">+7 952 794-13-26</a>
+</section>
+
+<footer>
+  <span>МАЛЯР</span> — отделочные работы любой сложности
+</footer>
+
+<!-- ЛАЙТБОКС -->
+<div class="lightbox" id="lightbox">
+  <img src="" alt="" id="lightbox-img">
+</div>
+
+<script>
+  const imgs = document.querySelectorAll('.gallery img');
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightbox-img');
+
+  imgs.forEach(img => {
+    img.addEventListener('click', () => {
+      lbImg.src = img.src;
+      lb.classList.add('active');
+    });
+  });
+
+  lb.addEventListener('click', () => {
+    lb.classList.remove('active');
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') lb.classList.remove('active');
+  });
+</script>
+
+</body>
+</html>
